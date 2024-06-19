@@ -4,9 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
@@ -17,14 +20,17 @@ class CreatePaymentsTable extends Migration
             $table->date('payment_date');
             $table->boolean('status');
             $table->text('description')->nullable();
-            $table->string('class'); // Add this line to include the class column
-            $table->softDeletes(); // Add this line to include soft deletes
+            $table->foreignId('class_id')->nullable()->constrained('classes'); // Pastikan kolom class_id ada di sini
+            $table->softDeletes();
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('payments');
     }
-}
+};

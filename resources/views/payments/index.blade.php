@@ -19,6 +19,7 @@
                     </div>
                     <div class="col-md-6 d-flex justify-content-end">
                         <a href="{{ route('createPayments') }}" class="btn btn-primary">Tambah Pembayaran</a>
+                        <a href="{{ route('payments.trashed') }}" class="btn btn-secondary">Data Terhapus</a>
                     </div>
                 </div>
             </div>
@@ -66,16 +67,13 @@
                                                     <a href="{{ route('editPayments', $payment) }}"
                                                         class="btn btn-warning btn-sm mr-2 rounded" title="Edit"><i
                                                             class="fas fa-edit"></i></a>
-                                                    <button type="button" class="btn btn-danger btn-sm rounded"
-                                                        onclick="confirmDelete('{{ route('deletePayments', ['payment' => $payment->id]) }}')"
-                                                        title="Hapus"><i class="fas fa-trash-alt"></i></button>
-                                                </div>
-                                                <form id="delete-form-{{ $payment->id }}"
-                                                    action="{{ route('deletePayments', ['payment' => $payment->id]) }}"
-                                                    method="POST" style="display: none;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                </form>
+                                                            <form onsubmit="confirmDelete(event, this)" data-student-name="{{ $payment->student->name }}" method="POST" action="{{ route('deletePayments', $payment->id) }}" class="mx-1">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                                    <i class="fas fa-trash-alt"></i>
+                                                                </button>
+                                                            </form>
                                             </td>
                                         </tr>
                                     @endforeach

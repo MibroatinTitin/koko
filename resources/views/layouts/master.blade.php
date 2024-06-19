@@ -240,12 +240,28 @@
                 
                         <!-- Manajemen Keuangan -->
                         @role('admin')
-                        <li class="nav-item">
-                            <a href="{{ route('listPayments') }}" class="nav-link {{ Request::is('payments*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-wallet"></i>
-                                <p>Mengelola Pembayaran</p>
+                        <li class="nav-item has-treeview mb-12">
+                            <a href="#" class="nav-link">
+                              <i class="nav-icon fas fa-wallet"></i>
+                              <p>
+                                Manajemen Keuangan
+                                <i class="right fas fa-angle-left"></i>
+                              </p>
                             </a>
-                        </li>
+                            <ul class="nav nav-treeview">
+                              <li class="nav-item">
+                                <a href="{{route('listPayments')}}" class="nav-link {{ Request::is('payments*') ? 'active' : '' }}">
+                                  <p>Tracking Pembayaran</p>
+                                </a>
+                              </li>
+                              <li class="nav-item">
+                                <a href="{{route('financial-reports.index')}}" class="nav-link {{ Request::is('financial-reports*') ? 'active' : '' }} ">
+                                  <p>Laporan keuangan</p>
+                                </a>
+                              </li>
+                            </ul>
+                          </li>
+                        
                         
                         @endrole
                     </ul>

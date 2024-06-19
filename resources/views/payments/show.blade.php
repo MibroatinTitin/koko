@@ -28,6 +28,13 @@
             <div class="container-fluid">
                 <div class="card">
                     <div class="card-body">
+                        <div class="d-flex justify-content-end mb-3">
+                            <a href="{{ route('payments.print', $payment->id) }}" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-print"></i> Cetak 
+                            </a>
+                        </div>
+                   
+              
                         <table class="table table-striped">
                             <tbody>
                                 <tr>

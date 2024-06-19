@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payments;
+use App\Models\Classes;
+use App\Models\Payment; // Ubah dari Payments menjadi Payment
 use App\Models\Students;
+use Dompdf\Options;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -14,8 +17,9 @@ class PaymentController extends Controller
     public function index()
     {
         $title = "Pembayaran";
-        $payments = Payments::all();
-        return view('payments.index', compact('payments', 'title'));
+        $payments = Payment::whereNull('deleted_at')->get();
+        $trashedPayments = Payment::onlyTrashed()->get();
+        return view('payments.index', compact('payments','title', 'trashedPayments'));
     }
 
     /**
@@ -25,7 +29,8 @@ class PaymentController extends Controller
     {
         $students = Students::with('class')->get();
         $title = "Tambah Pembayaran";
-        return view('payments.create', compact('students', 'title'));
+        $classes = Classes::all();
+        return view('payments.create', compact('students', 'title', 'classes'));
     }
 
     /**
@@ -41,10 +46,11 @@ class PaymentController extends Controller
             'payment_date' => 'required|date',
             'status' => 'required|boolean',
             'description' => 'nullable|string',
+            'class_id' => 'required|exists:classes,id', // Validasi class_id
         ]);
     
         try {
-            Payments::create($validatedData);
+            Payment::create($validatedData); // Menggunakan model Payment
         } catch (\Exception $e) {
             // Handle any other exceptions here
             return redirect()->back()->withInput()->withErrors(['error' => 'Gagal Menambahkan Data Pembayaran']);
@@ -53,11 +59,10 @@ class PaymentController extends Controller
         return redirect()->route('listPayments')->with('success', 'Berhasil Menambahkan Data Pembayaran');
     }
     
-
     /**
      * Display the specified resource.
      */
-    public function show(Payments $payment)
+    public function show(Payment $payment) // Menggunakan model Payment
     {
         $title = "Detail Pembayaran";
         return view('payments.show', compact('payment', 'title'));
@@ -66,7 +71,7 @@ class PaymentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Payments $payment)
+    public function edit(Payment $payment) // Menggunakan model Payment
     {
         $title = "Edit Pembayaran";
         $students = Students::with('class')->get();
@@ -76,7 +81,7 @@ class PaymentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Payments $payment)
+    public function update(Request $request, Payment $payment) // Menggunakan model Payment
     {
         $validatedData = $request->validate([
             'student_id' => 'required|exists:students,id',
@@ -84,7 +89,7 @@ class PaymentController extends Controller
             'payment_type' => 'required|array',
             'amount' => 'required|numeric',
             'payment_date' => 'required|date',
-            'status'             => 'required|boolean',
+            'status' => 'required|boolean',
             'description' => 'nullable|string',
         ]);
 
@@ -101,10 +106,55 @@ class PaymentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Payments $payment)
+    public function destroy($id)
     {
-        $payment->delete();
-        return redirect()->route('listPayments')->with('success', 'Berhasil Menghapus Data Pembayaran');
+        $payment = Payment::findOrFail($id);
+        $payment->delete(); // Menghapus data secara permanen dari database
+        return redirect()->route('listPayments')->with('success', 'Payment deleted successfully.');
     }
-}
+    public function restore($id)
+    {
+        $payment = Payment::withTrashed()->findOrFail($id);
+        $payment->restore();
 
+        return redirect()->route('listPayments')->with('success', 'Pembayaran berhasil direstore');
+    
+    }
+    public function forceDelete($id)
+    {
+        $payment = Payment::withTrashed()->findOrFail($id);
+        $payment->forceDelete();
+
+        return redirect()->route('payments.trashed')->with('success', 'data pembayaran berhasil di hapus Permanent.');
+    }
+    public function trashed()
+    {
+        $trashedPayments = Payment::onlyTrashed()->get();
+        return view('payments.trashed', compact('trashedPayments'));
+    }
+
+    public function print($id)
+    {
+        $payment = Payment::findOrFail($id);
+    
+        // Inisialisasi Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+    
+        // Render view ke dalam HTML
+        $html = view('payments.print', compact('payment'))->render();
+    
+        // Load HTML ke Dompdf
+        $dompdf->loadHtml($html);
+    
+        // Render PDF (optional: atur ukuran dan orientasi)
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+    
+        // Menampilkan PDF di browser tanpa memaksa unduhan
+        return $dompdf->stream('detail_pembayaran.pdf', array("Attachment" => false));
+    }
+    
+}

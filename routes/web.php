@@ -96,29 +96,37 @@ Route::middleware('auth')->group(function () {
 
     // Payment Routes (accessible only by admin)
     Route::middleware(['role:admin'])->group(function () {
-        Route::get('/payments', [PaymentController::class, 'index'])->name('listPayments');
-        Route::get('/payments/create', [PaymentController::class, 'create'])->name('createPayments');
-        Route::post('/payments', [PaymentController::class, 'store'])->name('storePayments');
-        Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('showPayments');
-        Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('editPayments');
-        Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('updatePayments');
-        Route::delete('/payments/{payment}/delete', [PaymentController::class, 'destroy'])->name('deletePayments');
+      
+        Route::get('payments/trashed', [PaymentController::class, 'trashed'])->name('payments.trashed');  
+        Route::post('payments/{id}/restore', [PaymentController::class, 'restore'])->name('payments.restore');
+        Route::delete('payments/{id}/force-delete', [PaymentController::class, 'forceDelete'])->name('payments.forceDelete');
+        Route::get('/payments', [PaymentController::class, 'index'])->name('listPayments');     
+        Route::get('/payments/create', [PaymentController::class, 'create'])->name('createPayments');     
+        Route::post('/payments', [PaymentController::class, 'store'])->name('storePayments');    
+        Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('showPayments');    
+        Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('editPayments');      
+        Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('updatePayments');   
+        Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('deletePayments');
+        Route::get('/payments/{payment}/print', [PaymentController::class, 'print'])->name('payments.print');
     });
+    
 
 
         // financialreport Routes (accessible only by admin)
-    Route::middleware(['role:admin'])->group(function () {
-        Route::get('/reports', [FinancialReportController::class, 'index'])->name('financial-reports.index');
-        Route::get('/reports/create', [FinancialReportController::class, 'create'])->name('financial-reports.create');
-        Route::post('/reports', [FinancialReportController::class, 'store'])->name('financial-reports.store');
-        Route::get('/reports/{id}', [FinancialReportController::class, 'show'])->name('financial-reports.show');
-        Route::delete('/reports/{id}', [FinancialReportController::class, 'destroy'])->name('financial-reports.destroy');
-        Route::get('/reports/{id}/edit', [FinancialReportController::class, 'edit'])->name('financial-reports.edit');
-        Route::put('/reports/{id}', [FinancialReportController::class, 'update'])->name('financial-reports.update');
-        Route::get('/financial-reports/print', [FinancialReportController::class, 'print'])->name('financial-reports.print');
-        Route::post('/financial-reports/print', [FinancialReportController::class, 'printReports'])->name('financial-reports.printReports');
-        Route::post('/financial-reports/print-pdf', [FinancialReportController::class, 'printPdf'])->name('financial-reports.printPdf');
-    });
+        Route::middleware(['role:admin'])->group(function () {
+            Route::get('/financial-reports', [FinancialReportController::class, 'index'])->name('financial-reports.index');
+            Route::get('/financial-reports/create', [FinancialReportController::class, 'create'])->name('financial-reports.create');
+            Route::post('/financial-reports', [FinancialReportController::class, 'store'])->name('financial-reports.store');
+            Route::get('/financial-reports/print', [FinancialReportController::class, 'print'])->name('financial-reports.print');
+            Route::post('/financial-reports/print', [FinancialReportController::class, 'printReports'])->name('financial-reports.printReports');
+            Route::post('/financial-reports/print-pdf', [FinancialReportController::class, 'printPdf'])->name('financial-reports.printPdf');
+            Route::get('/financial-reports/{id}', [FinancialReportController::class, 'show'])->name('financial-reports.show');
+            Route::delete('/financial-reports/{id}', [FinancialReportController::class, 'destroy'])->name('financial-reports.destroy');
+            Route::get('/financial-reports/{id}/edit', [FinancialReportController::class, 'edit'])->name('financial-reports.edit');
+            Route::put('/financial-reportss/{id}', [FinancialReportController::class, 'update'])->name('financial-reports.update');
+    
+           
+        });
 
     // Classes Management (accessible only by admin)
     Route::middleware(['role:admin'])->group(function () {
